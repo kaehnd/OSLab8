@@ -63,7 +63,7 @@ blah
     ```
 
 10. Record the contents /etc/fstab.  What does each entry mean?  Consult “man fstab” for help.
-    - The first entry corresponds to the actual Finally, the /swapfile entry mounts the swapfile, equivalent to the pagefile in Windows used for storing overflowed memory pages on disk.
+    - The top two entries correspond to ext4 and vfat virtual drive partitions that the system has access to. In particular, the first one seems to correspond to the filesystem, and the second one seems to correspond to the bootable linux partition. The /swapfile entry mounts the swapfile, equivalent to the pagefile in Windows used for storing overflowed memory pages on disk.
 
     ```text
     # /etc/fstab: static file system information.
@@ -87,14 +87,91 @@ blah
 
 1. Where are the mounted partitions of ‘/dev/sda1’ mounted?  Why do suspect that two partitions are used?  What is an advantage of partitioning the disk in this way?
 
+    - //todo
+
 2. Look at the image file with hexdump (hexdump –C flash.img | more).  Can you find your files?  How about the ones you deleted?  How did you find them or why couldn’t you?
+
+    - Yes, the files are all visible. At the top, all of the filenames and metadata about the files can be found, even that of the deleted files. The file contents can then be found at later positions within the image (again including the deleted files).
 
 3. Show a capture of the hexdump of the directory entries for the files you added to the image as well as the ones you added and deleted.  What is different?
 
+    - Files test.txt, test2.txt, test3.txt, and test4.txt were all files copied to the drive. test.txt and test2.txt were deleted. As can be seen from the capture below, the directory entry for the file has the first letter of the file replaced with a '.', for example the entry for 'test2.txt' at the top was replaced with '.EST2'.
+
+    ``` bash
+    *
+    00009e00  e5 74 00 65 00 73 00 74  00 32 00 0f 00 77 2e 00  |.t.e.s.t.2...w..|
+    00009e10  74 00 78 00 74 00 00 00  ff ff 00 00 ff ff ff ff  |t.x.t...........|
+    00009e20  e5 45 53 54 32 20 20 20  54 58 54 20 00 58 c1 9a  |.EST2   TXT .X..|
+    00009e30  6a 51 6a 51 00 00 c1 9a  6a 51 03 00 06 00 00 00  |jQjQ....jQ......|
+    00009e40  41 74 00 65 00 73 00 74  00 33 00 0f 00 d3 2e 00  |At.e.s.t.3......|
+    00009e50  74 00 78 00 74 00 00 00  ff ff 00 00 ff ff ff ff  |t.x.t...........|
+    00009e60  54 45 53 54 33 20 20 20  54 58 54 20 00 58 c1 9a  |TEST3   TXT .X..|
+    00009e70  6a 51 6a 51 00 00 c1 9a  6a 51 04 00 06 00 00 00  |jQjQ....jQ......|
+    00009e80  41 74 00 65 00 73 00 74  00 34 00 0f 00 1f 2e 00  |At.e.s.t.4......|
+    00009e90  74 00 78 00 74 00 00 00  ff ff 00 00 ff ff ff ff  |t.x.t...........|
+    00009ea0  54 45 53 54 34 20 20 20  54 58 54 20 00 58 c1 9a  |TEST4   TXT .X..|
+    00009eb0  6a 51 6a 51 00 00 c1 9a  6a 51 05 00 06 00 00 00  |jQjQ....jQ......|
+    00009ec0  42 6d 00 65 00 65 00 65  00 2e 00 0f 00 71 74 00  |Bm.e.e.e.....qt.|
+    00009ed0  78 00 74 00 00 00 ff ff  ff ff 00 00 ff ff ff ff  |x.t.............|
+    00009ee0  01 74 00 65 00 73 00 74  00 6c 00 0f 00 71 6f 00  |.t.e.s.t.l...qo.|
+    00009ef0  6f 00 6f 00 6f 00 6e 00  67 00 00 00 6e 00 61 00  |o.o.o.n.g...n.a.|
+    00009f00  54 45 53 54 4c 4f 7e 31  54 58 54 20 00 58 c1 9a  |TESTLO~1TXT .X..|
+    00009f10  6a 51 6a 51 00 00 c1 9a  6a 51 06 00 13 00 00 00  |jQjQ....jQ......|
+    00009f20  e5 74 00 65 00 73 00 74  00 2e 00 0f 00 8f 74 00  |.t.e.s.t......t.|
+    00009f30  78 00 74 00 00 00 ff ff  ff ff 00 00 ff ff ff ff  |x.t.............|
+    00009f40  e5 45 53 54 20 20 20 20  54 58 54 20 00 58 c1 9a  |.EST    TXT .X..|
+    00009f50  6a 51 6a 51 00 00 c1 9a  6a 51 07 00 06 00 00 00  |jQjQ....jQ......|
+    00009f60  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+    *
+    ```
+
 4. Show a capture of the hexdump of a portion of the file contents within the image of a file you deleted.  What do you observe?
+
+    - It appears that noghting has changed in the contents of the file. Text file test2.txt contained the text "test2" and this text is still found on the image. This implies that deleting files does not zero out the bytes that contain the file contents.
+
+    ```bash
+    *
+    0000e000  74 65 73 74 32 0a 00 00  00 00 00 00 00 00 00 00  |test2...........|
+    0000e010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+    *
+    ```
 
 5. Change directory to the directory that contains the file.  Try to unmount the file system with “umount /media/myimage”.  Did it work successfully?  Why or why not?
 
-## Conclusion
+    - This operation failed with the message `umount: /media/myimage: target is busy.`. This is presumably because of the terminal accessing the mounted image while trying to unmount the file, similar to trying to delete a file while it is open in another application. Changing directories from the mounted image allowed the file to be unmounted.
 
-blah
+### Teeny Tiny File System
+
+1. What is the largest file that TTFS can support?  How did you compute this number?
+
+    - //todo
+
+2. How may inodes and data blocks are in the file system?
+
+    - //todo
+
+3. How many inodes are free (not used by files or directories?
+
+    - //todo
+
+4. Draw a diagram of the directory hierarchy, include this diagram with your submission.
+
+    - //todo
+
+5. What are the names and sizes of each file in the file system?
+
+    - //todo
+
+6. How many blocks is each file in the file system?
+
+    - //todo
+
+7. For each file, what is the offset (from the start of the file system) for each data block?  How did you compute this?
+
+    - //todo
+
+8. Find one of the text files in the file system.  Write the data (as a string) for the file contents.  How were you able to find the data?
+
+    - //todo
+
+## Conclusion
