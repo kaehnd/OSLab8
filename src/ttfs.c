@@ -3,7 +3,7 @@
  * CS 3841-011
  * Lab 8: Fun with File Systems
  * 
- * main.c: main program, blah
+ * ttfs.c implements ttfsdump utility to print out contents of ttfs image
  */
 
 #include <stdio.h>
@@ -33,6 +33,7 @@ typedef struct ttfsDir
 
 static ttfs_super_block *superBlock;
 
+//loads contents of a file represented by given inode
 static ttfsFile *loadFile(ttfs_inode *fileInode, FILE *ttfsImg)
 {
     ttfsFile *curFile = malloc(sizeof(ttfsFile));
@@ -60,6 +61,7 @@ static ttfsFile *loadFile(ttfs_inode *fileInode, FILE *ttfsImg)
     return curFile;
 }
 
+//Recursively load a directory, its files, and subdirectories
 static ttfsDir *loadDirectory(ttfs_inode *dirInode, FILE *ttfsImg)
 {
     ttfsDir *curDir = malloc(sizeof(ttfsDir));
@@ -117,6 +119,7 @@ static ttfsDir *loadDirectory(ttfs_inode *dirInode, FILE *ttfsImg)
     return curDir;
 }
 
+//Recursively print the files contained in a directory and its subdirectories
 static void printDir(ttfsDir *curDir, char *curPath)
 {
 
@@ -134,6 +137,7 @@ static void printDir(ttfsDir *curDir, char *curPath)
     }
 }
 
+//Recursively free a directory, its files, and its subdirectories
 static void freeDir(ttfsDir *curDir)
 {
     for (int i = 0; i < curDir->numFiles; i++)
