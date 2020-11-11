@@ -31,8 +31,7 @@ typedef struct ttfsDir
     struct ttfsDir **dirs;
 } ttfsDir;
 
-ttfs_super_block *superBlock;
-ttfsDir *rootDir;
+static ttfs_super_block *superBlock;
 
 static ttfsFile *loadFile(ttfs_inode *fileInode, FILE *ttfsImg)
 {
@@ -118,7 +117,7 @@ static ttfsDir *loadDirectory(ttfs_inode *dirInode, FILE *ttfsImg)
     return curDir;
 }
 
-void printDir(ttfsDir *curDir, char *curPath)
+static void printDir(ttfsDir *curDir, char *curPath)
 {
 
     for (int i = 0; i < curDir->numFiles; i++)
@@ -135,7 +134,7 @@ void printDir(ttfsDir *curDir, char *curPath)
     }
 }
 
-void freeDir(ttfsDir *curDir)
+static void freeDir(ttfsDir *curDir)
 {
     for (int i = 0; i < curDir->numFiles; i++)
     {
@@ -191,7 +190,7 @@ int main(int argc, char *argv[])
     ttfs_inode *rootInode = malloc(sizeof(ttfs_inode));
     fread(rootInode, sizeof(ttfs_inode), 1, ttfsImg);
 
-    rootDir = loadDirectory(rootInode, ttfsImg);
+    ttfsDir * rootDir = loadDirectory(rootInode, ttfsImg);
     fclose(ttfsImg);
     free(rootInode);
 
