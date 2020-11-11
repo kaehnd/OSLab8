@@ -8,9 +8,9 @@
             "name": "gcc-99 - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/a.out",
+            "program": "${workspaceFolder}/build/ttfsdump",
             "args": [
-                "${workspaceFolder}/testSingle"
+                "${workspaceFolder}/ttfs.img"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

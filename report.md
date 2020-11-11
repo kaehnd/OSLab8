@@ -7,11 +7,11 @@ Fun with File Systems
 
 ## Introduction
 
-blah
+In this lab we got to look into how files are stored and mainained on mass storage devices. We did this by creading a sudo mass storage device in RAM with the exact same storage structure like that of a mass storage device. We got to look into mount points, how the system mounts diferent partitions, and what an image file for a new simple filesystem (TTFS) is structured and looks like.
 
 ## Build Instructions
 
-blah
+`make` will build the ttfsdump utility, located at ./build/ttfsdump.
 
 ## Analysis
 
@@ -87,7 +87,7 @@ blah
 
 1. Where are the mounted partitions of ‘/dev/sda1’ mounted?  Why do suspect that two partitions are used?  What is an advantage of partitioning the disk in this way?
 
-    - //todo
+    - At 0x0000 and an offset of 0x0C00, the hex dump exposes two seperate hex outputs of X.mkfs.fat followed by its standard 'this is not a bootale disk.' message. it would allow for two mount points in the same drive.
 
 2. Look at the image file with hexdump (hexdump –C flash.img | more).  Can you find your files?  How about the ones you deleted?  How did you find them or why couldn’t you?
 
@@ -144,34 +144,48 @@ blah
 
 1. What is the largest file that TTFS can support?  How did you compute this number?
 
-    - //todo
+    - One inode can contain references to up to 9 blocks, each of which is 512 bytes in length. This results in a max file size of 4,608 Bytes or 4.5 ki.
 
 2. How may inodes and data blocks are in the file system?
 
-    - //todo
+    - This image contains 20 inodes and 100 blocks.
 
 3. How many inodes are free (not used by files or directories?
 
-    - //todo
+    - 12 inodes are free, given that only 8 are marked as used in the inode bitmap table
 
 4. Draw a diagram of the directory hierarchy, include this diagram with your submission.
 
-    - //todo
+    ![dirDiagram.png file found in root directory of submission](./dirDiagram.png)
 
 5. What are the names and sizes of each file in the file system?
 
-    - //todo
+    - letters: 100 bytes
+    - text: 1034 bytes
+    - lowercase: 40 bytes
 
 6. How many blocks is each file in the file system?
 
-    - //todo
+    - letters: 1 block
+    - text: 3 blocks
+    - lowercase: 1 block
 
 7. For each file, what is the offset (from the start of the file system) for each data block?  How did you compute this?
 
-    - //todo
+    - letters
+        - block 01 * 512 + 0x530 = 0x0730
+    - text
+        - block 02 * 512 + 0x530 = 0x0930
+        - block 08 * 512 + 0x530 = 0x1530
+        - block 09 * 512 + 0x530 = 0x1730
+    - lowercase
+        - block 07 * 512 + 0x530 = 0x1330
 
 8. Find one of the text files in the file system.  Write the data (as a string) for the file contents.  How were you able to find the data?
 
-    - //todo
+    - lowercase: `cccccccccccccccccccccccccccccccccccccccc`
+    - We were able to find the data contained in this file by looking at address offset 0x1330 (the offset of the lowercase file) and filling in the characters shown by the hexdump until we encounted null termination at the end of the file.
 
 ## Conclusion
+
+This lab allowed us to dive into how filesystems and ram disks are organized and integrated into an operating system. It also allowed us to gain experience with interpreting a file system specification and using that to determine the contents of a binary image. We liked that we were able to learn the tools available to interpret a binary image of a filesystem into useful information about what is stored. We think that the lab might be able to be improved for other students by also having us analyze a FAT partition or other simple filesystem that is more widely used today, possibly in place of the activity with the RAM disk.

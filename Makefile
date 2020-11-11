@@ -1,4 +1,4 @@
-TARGET_EXEC ?= a.out
+TARGET_EXEC ?= ttfsdump
 
 BUILD_DIR ?= ./build
 SRC_DIR ?= ./src
